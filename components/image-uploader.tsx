@@ -122,4 +122,3 @@ export default function ImageUploader({ value = [], onChange, maxImages = 1, cla
     </div>
   )
 }
-

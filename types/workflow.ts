@@ -35,4 +35,3 @@ export interface Task {
   completedAt?: string // Changed from Date to string
   outputs: TaskOutput[]
 }
-

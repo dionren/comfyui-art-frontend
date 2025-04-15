@@ -1,10 +1,13 @@
 "use client"
-import { useParams, useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { ChevronLeft, Wallet, Bell, LogOut, Info, Crown, Check, CreditCard } from "lucide-react"
-import WorkflowExecutor from "@/components/workflow-executor"
+
+import type React from "react"
+
+import { useState } from "react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Wallet, Bell, LogOut, Info, Crown, Check, CreditCard } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,85 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { useState, useEffect } from "react"
-
-// 工作流数据映射
-const workflowsData = {
-  "stable-diffusion-xl": {
-    id: "stable-diffusion-xl",
-    name: "Stable Diffusion XL 图像生成",
-    description: "高质量图像生成工作流，基于Stable Diffusion XL模型。支持高分辨率输出和多种风格。",
-    imageUrl: "/placeholder.svg?height=300&width=400",
-    cost: 0.2,
-    accessType: "pay-per-use",
-    spaceId: "advance-aigc", // 所属空间ID
-    spaceName: "高级摄影AIGC工具集", // 所属空间名称
-  },
-  "midjourney-style": {
-    id: "midjourney-style",
-    name: "MidJourney 风格生成",
-    description: "模拟MidJourney风格的图像生成工作流，创建艺术感强的图像。",
-    imageUrl: "/placeholder.svg?height=300&width=400",
-    cost: 0.2,
-    accessType: "regular",
-  },
-  "text-to-video": {
-    id: "text-to-video",
-    name: "文本转视频",
-    description: "根据文本描述生成短视频片段，支持多种风格和场景。",
-    imageUrl: "/placeholder.svg?height=300&width=400",
-    cost: 0.5,
-    accessType: "premium",
-  },
-  "image-upscaling": {
-    id: "image-upscaling",
-    name: "图像超分辨率",
-    description: "提升图像分辨率和质量的工作流，适用于低分辨率图像增强。",
-    imageUrl: "/placeholder.svg?height=300&width=400",
-    cost: 0.1,
-    accessType: "free",
-  },
-  "style-transfer": {
-    id: "style-transfer",
-    name: "风格迁移",
-    description: "将一种艺术风格应用到图像上的工作流，创建艺术效果。",
-    imageUrl: "/placeholder.svg?height=300&width=400",
-    cost: 0.2,
-    accessType: "pay-per-use",
-  },
-  "text-generation": {
-    id: "text-generation",
-    name: "文本生成",
-    description: "基于提示生成创意文本内容，适用于创意写作和内容创作。",
-    imageUrl: "/placeholder.svg?height=300&width=400",
-    cost: 0.1,
-    accessType: "free",
-  },
-  "3d-model-generation": {
-    id: "3d-model-generation",
-    name: "3D模型生成",
-    description: "从文本描述生成3D模型，支持多种格式导出",
-    imageUrl: "/placeholder.svg?height=300&width=400",
-    cost: 0.5,
-    accessType: "premium",
-  },
-  "image-to-image": {
-    id: "image-to-image",
-    name: "图像变换",
-    description: "基于参考图像生成新的变体或修改",
-    imageUrl: "/placeholder.svg?height=300&width=400",
-    cost: 0.2,
-    accessType: "regular",
-  },
-  "background-removal": {
-    id: "background-removal",
-    name: "背景移除",
-    description: "自动移除图像背景，支持批量处理",
-    imageUrl: "/placeholder.svg?height=300&width=400",
-    cost: 0.1,
-    accessType: "free",
-  },
-}
+import SettingsNav from "@/components/settings-nav"
 
 // 畅绘Logo组件
 function ChangHuiLogo() {
@@ -117,7 +42,7 @@ const currentUser = {
   id: "user-current",
   name: "无心飞翔",
   email: "wuxinfeixiang@example.com",
-  avatar: "/placeholder.svg?height=100&width=100&text=📷&bgcolor=8B5CF6&textcolor=FFFFFF",
+  avatar: "/placeholder.svg?height=100&width=100&text=&bgcolor=8B5CF6&textcolor=FFFFFF",
   role: "会员",
   subscription: "regular" as "free" | "regular" | "premium", // 当前用户的订阅类型
   wallet: {
@@ -134,26 +59,9 @@ const currentUser = {
   memberSince: "2023-11-10T00:00:00Z",
 }
 
-export default function WorkflowPage() {
-  const params = useParams()
-  const router = useRouter()
-  const workflowId = params.id as string
+export default function SettingsLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname()
   const [showWalletDetails, setShowWalletDetails] = useState(false)
-
-  // 页面加载时自动滚动到顶部
-  useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [])
-
-  // 获取当前工作流数据
-  const workflow = workflowsData[workflowId as keyof typeof workflowsData] || {
-    id: workflowId,
-    name: "未知工作流",
-    description: "无法找到此工作流的详细信息",
-    imageUrl: "/placeholder.svg?height=300&width=400",
-    cost: 0,
-    accessType: "free",
-  }
 
   return (
     <div className="min-h-screen pb-8 dark bg-gray-950 text-gray-200">
@@ -341,34 +249,11 @@ export default function WorkflowPage() {
         </div>
       )}
 
-      {/* 页面内容 */}
-      <div className="container mx-auto p-4 pt-6">
-        {/* 工作流标题和返回按钮 */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
-          <div className="flex items-center">
-            <Button
-              variant="outline"
-              size="sm"
-              className="mr-3 gap-1 h-8 px-2 bg-gray-800 border-gray-700 hover:bg-gray-700"
-              onClick={() => router.push(`/space/${workflow.spaceId || "advance-aigc"}`)}
-            >
-              <ChevronLeft className="h-4 w-4" />
-              返回{workflow.spaceName ? `"${workflow.spaceName}"` : "空间"}
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold text-white">{workflow.name}</h1>
-              <p className="text-sm text-gray-400">{workflow.description}</p>
-            </div>
-          </div>
-          {workflow.cost > 0 && (
-            <div className="bg-gray-800 px-3 py-1.5 rounded-md border border-gray-700 flex items-center">
-              <span className="text-gray-400 text-sm mr-2">单次使用费用:</span>
-              <span className="text-purple-400 font-medium">{formatCurrency(workflow.cost)}</span>
-            </div>
-          )}
-        </div>
-
-        <WorkflowExecutor workflowId={workflowId} />
+      <div className="container py-8 grid grid-cols-1 md:grid-cols-[250px_1fr] gap-8">
+        <aside className="md:block">
+          <SettingsNav pathname={pathname} />
+        </aside>
+        <main>{children}</main>
       </div>
     </div>
   )
